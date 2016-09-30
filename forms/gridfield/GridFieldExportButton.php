@@ -24,12 +24,25 @@ class GridFieldExportButton implements GridField_HTMLProvider, GridField_ActionP
 	 * @var boolean
 	 */
 	protected $csvHasHeader = true;
-	
+
 	/**
 	 * Fragment to write the button to
 	 */
 	protected $targetFragment;
 
+	/**
+	 * Ouput data charset encoding.
+	 * Addition made by Benjamin @ Gambit.
+	 * Set to nothing by default.
+	 */
+	protected static $outputEncoding = null;
+
+	/**
+	 * Ouput data decimal mark for floating point values.
+	 * Addition made by Benjamin @ Gambit.
+	 * Set to nothing by default.
+	 */
+	protected static $decimalMark = null;
 	/**
 	 * @param string $targetFragment The HTML fragment to write the button into
 	 * @param array $exportColumns The columns to include in the export
@@ -40,14 +53,28 @@ class GridFieldExportButton implements GridField_HTMLProvider, GridField_ActionP
 	}
 
 	/**
+	 * @param string
+	 */
+	public static function setOutputEncoding($encoding) {
+		self::$outputEncoding = $encoding;
+	}
+
+	/**
+	 * @param string
+	 */
+	public static function setDecimalMark($character) {
+		self::$decimalMark = $character;
+	}
+
+	/**
 	 * Place the export button in a <p> tag below the field
 	 */
 	public function getHTMLFragments($gridField) {
 		$button = new GridField_FormAction(
-			$gridField, 
-			'export', 
+			$gridField,
+			'export',
 			_t('TableListField.CSVEXPORT', 'Export to CSV'),
-			'export', 
+			'export',
 			null
 		);
 		$button->setAttribute('data-icon', 'download-csv');
@@ -118,10 +145,10 @@ class GridFieldExportButton implements GridField_HTMLProvider, GridField_ActionP
 			$fileData .= "\"" . implode("\"{$separator}\"", array_values($headers)) . "\"";
 			$fileData .= "\n";
 		}
-		
+
 		//Remove GridFieldPaginator as we're going to export the entire list.
 		$gridField->getConfig()->removeComponentsByType('GridFieldPaginator');
-		
+
 		$items = $gridField->getManipulatedList();
 
 		// @todo should GridFieldComponents change behaviour based on whether others are available in the config?
@@ -182,7 +209,7 @@ class GridFieldExportButton implements GridField_HTMLProvider, GridField_ActionP
 		$this->exportColumns = $cols;
 		return $this;
 	}
-	
+
 	/**
 	 * @return string
 	 */
