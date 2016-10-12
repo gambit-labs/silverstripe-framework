@@ -43,6 +43,7 @@ class GridFieldExportButton implements GridField_HTMLProvider, GridField_ActionP
 	 * Set to nothing by default.
 	 */
 	protected static $decimalMark = null;
+
 	/**
 	 * @param string $targetFragment The HTML fragment to write the button into
 	 * @param array $exportColumns The columns to include in the export
@@ -177,6 +178,11 @@ class GridFieldExportButton implements GridField_HTMLProvider, GridField_ActionP
 						if(!$value) {
 							$value = $gridField->getDataFieldValue($item, $columnHeader);
 						}
+
+						// Checking if we have a decimal mark specified, and if the value is a float value in a string.
+						if (self::$decimalMark && is_numeric($value) && strpos($value , '.') !== false) {
+							$value = str_replace('.', self::$decimalMark, $value);
+						}
 					}
 
 					$value = str_replace(array("\r", "\n"), "\n", $value);
@@ -190,6 +196,11 @@ class GridFieldExportButton implements GridField_HTMLProvider, GridField_ActionP
 			if($item->hasMethod('destroy')) {
 				$item->destroy();
 			}
+		}
+
+		if (self::$outputEncoding) {
+			// Assuming we are using encoding UTF-8 here as default!
+			$fileData = iconv('utf-8', self::$outputEncoding, $fileData);
 		}
 
 		return $fileData;
